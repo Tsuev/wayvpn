@@ -1,9 +1,13 @@
-import bot from "./bot.js";
 import messages from "./messages.js";
 import keyboards from "./keyboards.js";
+import { fileURLToPath } from "url";
+import path from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export default {
-  profile: (msg) => {
+  profile: (bot, msg) => {
     bot.deleteMessage(msg.from.id, msg.message.message_id);
     bot.sendMessage(
       msg.from.id,
@@ -11,7 +15,7 @@ export default {
       keyboards.back()
     );
   },
-  keys: (msg) => {
+  keys: (bot, msg) => {
     bot.deleteMessage(msg.from.id, msg.message.message_id);
     bot.sendMessage(
       msg.from.id,
@@ -25,19 +29,30 @@ export default {
       }
     );
   },
-  subscription: (msg) => {
+  subscription: (bot, msg) => {
     bot.deleteMessage(msg.from.id, msg.message.message_id);
     bot.sendMessage(msg.from.id, messages.subscription(), keyboards.back());
   },
-  help: (msg) => {
+  help: (bot, msg) => {
     bot.deleteMessage(msg.from.id, msg.message.message_id);
     bot.sendMessage(msg.from.id, messages.help(), {
       ...keyboards.back(),
       parse_mode: "HTML",
     });
   },
-  back: (msg) => {
+  back: (bot, msg) => {
     bot.deleteMessage(msg.from.id, msg.message.message_id);
-    bot.sendPhoto(msg.from.id, "Главное меню", keyboards.menu());
+    bot.sendMessage(msg.from.id, "Главное меню", keyboards.menu());
+  },
+  start: (bot, msg) => {
+    bot.setMyCommands([{ command: "start", description: "Главное меню" }]);
+    bot.sendPhoto(
+      msg.chat.id,
+      fs.createReadStream(path.join(__dirname, "../assets/ad.jpg")),
+      keyboards.menu()
+    );
+  },
+  error: (bot, msg) => {
+    bot.sendMessage(process.env.ADMIN_ID, msg);
   },
 };
