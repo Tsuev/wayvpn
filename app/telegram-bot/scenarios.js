@@ -2,6 +2,7 @@ import messages from "./messages.js";
 import keyboards from "./keyboards.js";
 import { fileURLToPath } from "url";
 import path from "path";
+import fs from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -42,13 +43,17 @@ export default {
   },
   back: (bot, msg) => {
     bot.deleteMessage(msg.from.id, msg.message.message_id);
-    bot.sendMessage(msg.from.id, "Главное меню", keyboards.menu());
+    bot.sendPhoto(
+      msg.from.id,
+      fs.createReadStream(path.join(__dirname, "../../assets/ad.jpg")),
+      keyboards.menu()
+    );
   },
   start: (bot, msg) => {
     bot.setMyCommands([{ command: "start", description: "Главное меню" }]);
     bot.sendPhoto(
       msg.chat.id,
-      fs.createReadStream(path.join(__dirname, "../assets/ad.jpg")),
+      fs.createReadStream(path.join(__dirname, "../../assets/ad.jpg")),
       keyboards.menu()
     );
   },
