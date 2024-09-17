@@ -4,6 +4,10 @@ import { fileURLToPath } from "url";
 import path from "path";
 import fs from "fs";
 
+import { createSubscription } from "../services/yookassaServies.js";
+import { createClient } from "../services/supabaseService.js";
+import { addClient } from "../services/x-ui.js";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
