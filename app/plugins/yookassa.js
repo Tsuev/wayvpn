@@ -10,7 +10,7 @@ const url = process.env.YOOKASSA_URL;
 const return_url = process.env.BOT_URL;
 
 const yooKassa = {
-  createPayment: async (value, uuidv4) => {
+  createPayment: async (value) => {
     const paymentData = {
       amount: {
         value,
@@ -23,14 +23,14 @@ const yooKassa = {
       },
       description: "Оплата подписки",
       metadata: {
-        order_id: uuidv4,
+        order_id: uuidv4(),
       },
       save_payment_method: true,
     };
 
     const headers = {
       "Content-Type": "application/json",
-      "Idempotence-Key": uuidv4,
+      "Idempotence-Key": uuidv4(),
       Authorization:
         "Basic " + Buffer.from(`${shopId}:${secretKey}`).toString("base64"),
     };
@@ -43,7 +43,7 @@ const yooKassa = {
       });
 
       const responseData = await response.json();
-      console.log(responseData);
+
       return responseData;
     } catch (error) {
       console.error("Ошибка запроса:", error);
@@ -69,22 +69,5 @@ const yooKassa = {
     }
   },
 };
-
-(async () => {
-  try {
-    const response = await yooKassa.createPayment(100, uuidv4());
-    const intervalId = setInterval(async () => {
-      const payment = await yooKassa.checkPayment(response.id);
-      if (payment.status === "succeeded") {
-        console.log(payment);
-        clearInterval(intervalId);
-      }
-    }, 1000);
-
-    console.log(response);
-  } catch (error) {
-    console.error(error);
-  }
-})();
 
 export default yooKassa;
