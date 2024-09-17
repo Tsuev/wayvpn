@@ -1,12 +1,16 @@
 import messages from "./messages.js";
 import keyboards from "./keyboards.js";
 import { fileURLToPath } from "url";
-import path from "path";
+import path, { parse } from "path";
 import fs from "fs";
 
-import { createSubscription } from "../services/yookassaServies.js";
+import {
+  createSubscription,
+  checkPayment,
+} from "../services/yookassaServies.js";
 import { createClient } from "../services/supabaseService.js";
-import { addClient } from "../services/x-ui.js";
+import { addVPNClient } from "../services/vpnService.js";
+import getSubscribeTime from "../helpers/getSubscribeTime.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -72,8 +76,65 @@ export default {
   error: (bot, msg) => {
     bot.sendMessage(process.env.ADMIN_ID, msg);
   },
-  200: (bot, msg) => {
-    bot.sendMessage(msg.from.id, "Тест");
+  200: async (bot, msg) => {
+    const time = getSubscribeTime(1);
+
+    try {
+      // await bot.deleteMessage(msg.from.id, msg.message.message_id);
+      await bot.sendMessage(msg.from.id, "⌛ Загрузка...");
+
+      const payData = await createSubscription(+msg.data);
+      await bot.sendMessage(
+        msg.from.id,
+        `<a href="${payData.confirmation.confirmation_url}"><b>Оплатить подписку</b></a>`,
+        { parse_mode: "HTML" }
+      );
+
+      const trackPayment = async (payData) => {
+        return new Promise((resolve, reject) => {
+          const intervalId = setInterval(async () => {
+            const updatedPayData = await checkPayment(payData.id);
+
+            if (updatedPayData.status === "succeeded") {
+              bot.sendMessage(msg.from.id, "✅ Оплата прошла успешно!");
+              bot.sendPhoto(
+                msg.from.id,
+                fs.createReadStream(
+                  path.join(__dirname, "../../assets/ad.jpg")
+                ),
+                keyboards.menu()
+              );
+              clearInterval(intervalId);
+              resolve(updatedPayData);
+            }
+
+            if (updatedPayData.status === "canceled") {
+              clearInterval(intervalId);
+              bot.sendMessage(msg.from.id, "❌ Оплата отменена");
+              bot.sendPhoto(
+                msg.from.id,
+                fs.createReadStream(
+                  path.join(__dirname, "../../assets/ad.jpg")
+                ),
+                keyboards.menu()
+              );
+              reject(new Error("Payment was canceled"));
+            }
+          }, 2000);
+        });
+      };
+
+      const completedPayData = await trackPayment(payData);
+
+      await addVPNClient(completedPayData.id, msg.from.id, time, msg.from.id);
+      await createClient(completedPayData.payment_method.id, msg.from.id, time);
+    } catch (error) {
+      bot.sendMessage(
+        msg.from.id,
+        "Возникла какая-то ошибка\n\n❌ Оплата отменена"
+      );
+      console.error("Ошибка:", error.message);
+    }
   },
   540: (bot, msg) => {
     bot.sendMessage(msg.from.id, "Тест");

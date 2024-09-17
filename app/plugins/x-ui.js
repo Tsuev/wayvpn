@@ -1,6 +1,5 @@
 import { config } from "dotenv";
 import { URLSearchParams } from "url";
-import getSubscribeTime from "../helpers/getSubscribeTime.js";
 
 config({ path: "../../.env" });
 
@@ -33,7 +32,7 @@ const login = async () => {
   }
 };
 
-const addClient = async (id, username, time, tgId) => {
+const addClient = async (id, username, expiryTime, tgId) => {
   try {
     const cookies = await login();
 
@@ -49,7 +48,7 @@ const addClient = async (id, username, time, tgId) => {
             email: username,
             limitIp: 2,
             totalGB: 0,
-            expiryTime: getSubscribeTime(+time),
+            expiryTime,
             enable: true,
             tgId,
             subId: "",
@@ -59,7 +58,7 @@ const addClient = async (id, username, time, tgId) => {
       })
     );
 
-    await fetch(`${URL}/panel/inbound/addClient`, {
+    const response = await fetch(`${URL}/panel/inbound/addClient`, {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -68,6 +67,10 @@ const addClient = async (id, username, time, tgId) => {
       redirect: "follow",
       body: data,
     });
+
+    const resParse = await response.json();
+
+    return resParse;
   } catch (error) {
     console.error("Произошла ошибка:", error);
   }
