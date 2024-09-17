@@ -32,7 +32,15 @@ export default {
   },
   subscription: (bot, msg) => {
     bot.deleteMessage(msg.from.id, msg.message.message_id);
-    bot.sendMessage(msg.from.id, messages.subscription(), keyboards.back());
+    bot.sendPhoto(
+      msg.from.id,
+      fs.createReadStream(path.join(__dirname, "../../assets/price.png")),
+      {
+        ...keyboards.price(),
+        caption: messages.subscription(),
+        parse_mode: "HTML",
+      }
+    );
   },
   help: (bot, msg) => {
     bot.deleteMessage(msg.from.id, msg.message.message_id);
@@ -52,12 +60,24 @@ export default {
   start: (bot, msg) => {
     bot.setMyCommands([{ command: "start", description: "Главное меню" }]);
     bot.sendPhoto(
-      msg.chat.id,
+      msg.from.id,
       fs.createReadStream(path.join(__dirname, "../../assets/ad.jpg")),
       keyboards.menu()
     );
   },
   error: (bot, msg) => {
     bot.sendMessage(process.env.ADMIN_ID, msg);
+  },
+  200: (bot, msg) => {
+    bot.sendMessage(msg.from.id, "Тест");
+  },
+  540: (bot, msg) => {
+    bot.sendMessage(msg.from.id, "Тест");
+  },
+  1100: (bot, msg) => {
+    bot.sendMessage(msg.from.id, "Тест");
+  },
+  2000: (bot, msg) => {
+    bot.sendMessage(msg.from.id, "Тест");
   },
 };

@@ -1,19 +1,25 @@
 import supabase from "../plugins/supabase.js";
 
-const createClient = async () => {
+const createClient = async (order_id, tg_id, last_at) => {
   try {
     const { data, error } = await supabase
       .from("clients")
       .insert([
         {
-          order_id: 123,
-          tg_id: 456,
+          order_id,
+          tg_id,
+          last_at,
           subscription: true,
-          last_at: new Date(), // Timestamp
         },
       ])
       .select();
+
+    if (error) throw error;
+
+    return data;
   } catch (error) {
     console.error(error);
   }
 };
+
+export { createClient };
