@@ -1,13 +1,14 @@
 import messages from "./messages.js";
 import keyboards from "./keyboards.js";
 import { fileURLToPath } from "url";
-import path, { parse } from "path";
+import path from "path";
 import fs from "fs";
 
 import {
   createSubscription,
   checkPayment,
 } from "../services/yookassaServies.js";
+
 import { createClient } from "../services/supabaseService.js";
 import { addVPNClient } from "../services/vpnService.js";
 import getSubscribeTime from "../helpers/getSubscribeTime.js";
@@ -80,13 +81,12 @@ export default {
     const time = getSubscribeTime(1);
 
     try {
-      // await bot.deleteMessage(msg.from.id, msg.message.message_id);
-      await bot.sendMessage(msg.from.id, "⌛ Загрузка...");
+      const paymentLoad = await bot.sendMessage(msg.from.id, "⌛ Загрузка...");
 
       const payData = await createSubscription(+msg.data);
-      await bot.sendMessage(
+      const paymentLinkMessage = await bot.sendMessage(
         msg.from.id,
-        `<a href="${payData.confirmation.confirmation_url}"><b>Оплатить подписку</b></a>`,
+        `<a href="${payData.confirmation.confirmation_url}"><b>Ссылка на оплату подписки</b></a>`,
         { parse_mode: "HTML" }
       );
 
@@ -96,8 +96,13 @@ export default {
             const updatedPayData = await checkPayment(payData.id);
 
             if (updatedPayData.status === "succeeded") {
-              bot.sendMessage(msg.from.id, "✅ Оплата прошла успешно!");
-              bot.sendPhoto(
+              bot.deleteMessage(msg.from.id, paymentLoad.message_id);
+              await bot.deleteMessage(
+                msg.from.id,
+                paymentLinkMessage.message_id
+              );
+              await bot.sendMessage(msg.from.id, "✅ Оплата прошла успешно!");
+              await bot.sendPhoto(
                 msg.from.id,
                 fs.createReadStream(
                   path.join(__dirname, "../../assets/ad.jpg")
@@ -110,8 +115,13 @@ export default {
 
             if (updatedPayData.status === "canceled") {
               clearInterval(intervalId);
-              bot.sendMessage(msg.from.id, "❌ Оплата отменена");
-              bot.sendPhoto(
+              await bot.deleteMessage(msg.from.id, paymentLoad.message_id);
+              await bot.deleteMessage(
+                msg.from.id,
+                paymentLinkMessage.message_id
+              );
+              await bot.sendMessage(msg.from.id, "❌ Оплата отменена");
+              await bot.sendPhoto(
                 msg.from.id,
                 fs.createReadStream(
                   path.join(__dirname, "../../assets/ad.jpg")
@@ -132,7 +142,12 @@ export default {
         time,
         msg.from.id
       );
-      await createClient(completedPayData.payment_method.id, msg.from.id, time);
+      await createClient(
+        completedPayData.payment_method.id,
+        msg.from.id,
+        time,
+        "vpn_key"
+      );
     } catch (error) {
       bot.sendMessage(
         msg.from.id,
