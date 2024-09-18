@@ -26,7 +26,11 @@ const login = async () => {
       throw new Error(`Ошибка HTTP: ${response.status}`);
     }
 
-    return response.headers.raw()["set-cookie"][1];
+    const authCookie = response.headers
+      .get("set-cookie")
+      .split("HttpOnly, ")[1];
+
+    return authCookie;
   } catch (error) {
     console.error("Произошла ошибка:", error);
   }
