@@ -13,7 +13,7 @@ const URL = process.env.VPN_URL;
 
 const login = async () => {
   try {
-    const response = await fetch(`${URL}/login`, {
+    const response = await fetch(`${URL}/wayvpn/login`, {
       body: urlencoded,
       method: "POST",
       headers: {
@@ -62,7 +62,7 @@ const addClient = async (id, username, expiryTime, tgId) => {
       })
     );
 
-    const response = await fetch(`${URL}/panel/inbound/addClient`, {
+    const response = await fetch(`${URL}/wayvpn/panel/inbound/addClient`, {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -79,5 +79,7 @@ const addClient = async (id, username, expiryTime, tgId) => {
     console.error("Произошла ошибка:", error);
   }
 };
+
+addClient("erg34g3bgre3be", "egerg0", 1729262471201, 335435);
 
 export { addClient };

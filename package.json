@@ -4,7 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "dev": "nodemon app.js"
+    "prod": "node --env-file=.env app.js",
+    "win-dev": "nodemon --exec \"node -r dotenv/config\" app.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.3",

@@ -12,11 +12,12 @@ import {
 import { createClient } from "../services/supabaseService.js";
 import { addVPNClient } from "../services/vpnService.js";
 import getSubscribeTime from "../helpers/getSubscribeTime.js";
+import createVPNkey from "../helpers/createVPNkey.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export default {
+const scenarios = {
   profile: (bot, msg) => {
     bot.deleteMessage(msg.from.id, msg.message.message_id);
     bot.sendMessage(
@@ -25,19 +26,13 @@ export default {
       keyboards.back()
     );
   },
-  keys: (bot, msg) => {
+  keys: (bot, msg, key) => {
     bot.deleteMessage(msg.from.id, msg.message.message_id);
-    bot.sendMessage(
-      msg.from.id,
-      messages.keys(
-        "<pre>vless://0c5d96e2-f258-4136-932d-4136-932d-4136-932d-4136-932d-4136-932d</pre>"
-      ),
-      {
-        ...keyboards.back(),
-        parse_mode: "HTML",
-        disable_web_page_preview: true,
-      }
-    );
+    bot.sendMessage(msg.from.id, messages.keys(`<pre>${key}</pre>`), {
+      ...keyboards.back(),
+      parse_mode: "HTML",
+      disable_web_page_preview: true,
+    });
   },
   subscription: (bot, msg) => {
     bot.deleteMessage(msg.from.id, msg.message.message_id);
@@ -78,83 +73,7 @@ export default {
     bot.sendMessage(process.env.ADMIN_ID, msg);
   },
   200: async (bot, msg) => {
-    const time = getSubscribeTime(1);
-
-    try {
-      const paymentLoad = await bot.sendMessage(msg.from.id, "⌛ Загрузка...");
-
-      const payData = await createSubscription(+msg.data);
-      const paymentLinkMessage = await bot.sendMessage(
-        msg.from.id,
-        `<a href="${payData.confirmation.confirmation_url}"><b>Ссылка на оплату подписки</b></a>`,
-        { parse_mode: "HTML" }
-      );
-
-      const trackPayment = async (payData) => {
-        return new Promise((resolve, reject) => {
-          const intervalId = setInterval(async () => {
-            const updatedPayData = await checkPayment(payData.id);
-
-            if (updatedPayData.status === "succeeded") {
-              bot.deleteMessage(msg.from.id, paymentLoad.message_id);
-              await bot.deleteMessage(
-                msg.from.id,
-                paymentLinkMessage.message_id
-              );
-              await bot.sendMessage(msg.from.id, "✅ Оплата прошла успешно!");
-              await bot.sendPhoto(
-                msg.from.id,
-                fs.createReadStream(
-                  path.join(__dirname, "../../assets/ad.jpg")
-                ),
-                keyboards.menu()
-              );
-              clearInterval(intervalId);
-              resolve(updatedPayData);
-            }
-
-            if (updatedPayData.status === "canceled") {
-              clearInterval(intervalId);
-              await bot.deleteMessage(msg.from.id, paymentLoad.message_id);
-              await bot.deleteMessage(
-                msg.from.id,
-                paymentLinkMessage.message_id
-              );
-              await bot.sendMessage(msg.from.id, "❌ Оплата отменена");
-              await bot.sendPhoto(
-                msg.from.id,
-                fs.createReadStream(
-                  path.join(__dirname, "../../assets/ad.jpg")
-                ),
-                keyboards.menu()
-              );
-              reject(new Error("Payment was canceled"));
-            }
-          }, 2000);
-        });
-      };
-
-      const completedPayData = await trackPayment(payData);
-
-      await addVPNClient(
-        completedPayData.id,
-        String(msg.from.id),
-        time,
-        msg.from.id
-      );
-      await createClient(
-        completedPayData.payment_method.id,
-        msg.from.id,
-        time,
-        "vpn_key"
-      );
-    } catch (error) {
-      bot.sendMessage(
-        msg.from.id,
-        "Возникла какая-то ошибка\n\n❌ Оплата отменена"
-      );
-      console.error("Ошибка:", error.message);
-    }
+    payment(bot, msg, 1);
   },
   540: (bot, msg) => {
     bot.sendMessage(msg.from.id, "Тест");
@@ -166,3 +85,74 @@ export default {
     bot.sendMessage(msg.from.id, "Тест");
   },
 };
+
+async function payment(bot, msg, months) {
+  const time = getSubscribeTime(months);
+
+  try {
+    const paymentLoadMessage = await bot.sendMessage(
+      msg.from.id,
+      "⌛ Загрузка..."
+    );
+
+    const payData = await createSubscription(+msg.data);
+    const paymentLinkMessage = await bot.sendMessage(
+      msg.from.id,
+      `<a href="${payData.confirmation.confirmation_url}"><b>Ссылка на оплату подписки</b></a>`,
+      { parse_mode: "HTML" }
+    );
+
+    const trackPayment = async (payData) => {
+      return new Promise((resolve, reject) => {
+        const intervalId = setInterval(async () => {
+          const updatedPayData = await checkPayment(payData.id);
+
+          if (updatedPayData.status === "succeeded") {
+            bot.deleteMessage(msg.from.id, paymentLoadMessage.message_id);
+            await bot.deleteMessage(msg.from.id, paymentLinkMessage.message_id);
+            await bot.sendMessage(msg.from.id, "✅ Оплата прошла успешно!");
+            scenarios.keys(
+              bot,
+              msg,
+              createVPNkey(updatedPayData.id, msg.from.id)
+            );
+            clearInterval(intervalId);
+            resolve(updatedPayData);
+          }
+
+          if (updatedPayData.status === "canceled") {
+            clearInterval(intervalId);
+            await bot.deleteMessage(msg.from.id, paymentLoadMessage.message_id);
+            await bot.deleteMessage(msg.from.id, paymentLinkMessage.message_id);
+            await bot.sendMessage(msg.from.id, "❌ Оплата отменена");
+            scenarios.start(bot, msg);
+            reject(new Error("Payment was canceled"));
+          }
+        }, 2000);
+      });
+    };
+
+    const completedPayData = await trackPayment(payData);
+
+    await addVPNClient(
+      completedPayData.id,
+      String(msg.from.id),
+      time,
+      msg.from.id
+    );
+    await createClient(
+      completedPayData.payment_method.id,
+      msg.from.id,
+      time,
+      createVPNkey(completedPayData.id, msg.from.id)
+    );
+  } catch (error) {
+    bot.sendMessage(
+      msg.from.id,
+      "Возникла какая-то ошибка\n\n❌ Оплата отменена"
+    );
+    console.error("Ошибка:", error.message);
+  }
+}
+
+export default scenarios;
