@@ -3,8 +3,6 @@ import getSubscribeTime from "../helpers/getSubscribeTime.js";
 
 const createClient = async (order_id, tg_id, left_time, vpn_key) => {
   try {
-    console.log(last_at);
-
     const { data, error } = await supabase
       .from("clients")
       .insert([
@@ -26,4 +24,5 @@ const createClient = async (order_id, tg_id, left_time, vpn_key) => {
   }
 };
 
+createClient("order_id", 73323, getSubscribeTime(1), "key");
 export { createClient };
