@@ -132,7 +132,11 @@ export default {
         time,
         msg.from.id
       );
-      await createClient(completedPayData.payment_method.id, msg.from.id, time);
+      await createClient(
+        completedPayData.payment_method.id,
+        msg.from.id,
+        Math.floor(time / 1000)
+      );
     } catch (error) {
       bot.sendMessage(
         msg.from.id,

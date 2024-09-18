@@ -65,7 +65,7 @@ const yooKassa = {
 
       return paymentData;
     } catch (error) {
-      console.log("Error:", error);
+      console.error("Error:", error);
     }
   },
 };
