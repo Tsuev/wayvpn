@@ -126,7 +126,12 @@ export default {
 
       const completedPayData = await trackPayment(payData);
 
-      await addVPNClient(completedPayData.id, msg.from.id, time, msg.from.id);
+      await addVPNClient(
+        completedPayData.id,
+        String(msg.from.id),
+        time,
+        msg.from.id
+      );
       await createClient(completedPayData.payment_method.id, msg.from.id, time);
     } catch (error) {
       bot.sendMessage(

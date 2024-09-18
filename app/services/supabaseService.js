@@ -2,7 +2,7 @@ import supabase from "../plugins/supabase.js";
 
 const createClient = async (order_id, tg_id, last_at, vpn_key) => {
   try {
-    const data = await supabase
+    const { data, error } = await supabase
       .from("clients")
       .insert([
         {
@@ -15,8 +15,7 @@ const createClient = async (order_id, tg_id, last_at, vpn_key) => {
       ])
       .select();
 
-    // if (error) throw error;
-    console.log(data);
+    if (error) throw new Error(JSON.stringify(error));
 
     return data;
   } catch (error) {
@@ -24,12 +23,4 @@ const createClient = async (order_id, tg_id, last_at, vpn_key) => {
   }
 };
 
-const foo = async () => {
-  let data = await supabase.from("clietns").select("*");
-
-  console.log(data);
-};
-
-// createClient("test", "test", 10000, "test");
-foo();
 export { createClient };
