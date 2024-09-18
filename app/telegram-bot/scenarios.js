@@ -9,7 +9,7 @@ import {
   checkPayment,
 } from "../services/yookassaServies.js";
 
-import { createClient } from "../services/supabaseService.js";
+import { createClient, getClient } from "../services/supabaseService.js";
 import { addVPNClient } from "../services/vpnService.js";
 import getSubscribeTime from "../helpers/getSubscribeTime.js";
 import createVPNkey from "../helpers/createVPNkey.js";
@@ -26,13 +26,27 @@ const scenarios = {
       keyboards.back()
     );
   },
-  keys: (bot, msg, key) => {
-    bot.deleteMessage(msg.from.id, msg.message.message_id);
-    bot.sendMessage(msg.from.id, messages.keys(`<pre>${key}</pre>`), {
-      ...keyboards.back(),
-      parse_mode: "HTML",
-      disable_web_page_preview: true,
-    });
+  keys: async (bot, msg) => {
+    await bot.deleteMessage(msg.from.id, msg.message.message_id);
+    const clientData = await getClient(msg.from.id);
+
+    if (clientData.length) {
+      await bot.sendMessage(
+        msg.from.id,
+        messages.keys(`<pre>${clientData[0].vpn_key}</pre>`),
+        {
+          ...keyboards.back(),
+          parse_mode: "HTML",
+          disable_web_page_preview: true,
+        }
+      );
+    } else {
+      await bot.sendMessage(msg.from.id, messages.keys(), {
+        ...keyboards.back(),
+        parse_mode: "HTML",
+        disable_web_page_preview: true,
+      });
+    }
   },
   subscription: (bot, msg) => {
     bot.deleteMessage(msg.from.id, msg.message.message_id);

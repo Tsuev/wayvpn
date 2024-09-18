@@ -1,8 +1,5 @@
 import fetch from "node-fetch";
-import { config } from "dotenv";
 import { v4 as uuidv4 } from "uuid";
-
-config({ path: "../../.env" });
 
 const secretKey = process.env.TEST_YOOKASSA_API_KEY;
 const shopId = process.env.TEST_YOOKASSA_SHOP_ID;

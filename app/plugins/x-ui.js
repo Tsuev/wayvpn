@@ -1,7 +1,4 @@
-import { config } from "dotenv";
 import { URLSearchParams } from "url";
-
-config({ path: "../../.env" });
 
 const urlencoded = new URLSearchParams();
 const [username, password] = process.env.AUTH_DATA.split(":");
