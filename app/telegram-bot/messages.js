@@ -4,9 +4,9 @@ const messages = {
       subscriptionState ? "активна" : "неактивна"
     }`;
   },
-  keys: (key) => {
+  keys: (key, time) => {
     return key
-      ? `🔐 Ваш ключ:\n\n${key}\n\nСкопируйте и вставьте в приложение\n\n📱<a href='https://apps.apple.com/us/app/streisand/id6450534064'>IOS</a>\n\n📱<a href='https://play.google.com/store/apps/details?id=app.hiddify.com&hl=en_US'>Android</a>`
+      ? `🔐 Ваш ключ:\n\n${key}\n\nСкопируйте и вставьте в приложение\n\n📱<a href='https://apps.apple.com/us/app/streisand/id6450534064'>IOS</a>\n\n📱<a href='https://play.google.com/store/apps/details?id=app.hiddify.com&hl=en_US'>Android</a>\n\n`
       : "🔐 У вас нет приобретенных ключей для активации(";
   },
   help: () => {
