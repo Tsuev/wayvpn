@@ -1,16 +1,19 @@
 import supabase from "../plugins/supabase.js";
+import getSubscribeTime from "../helpers/getSubscribeTime.js";
 
-const createClient = async (order_id, tg_id, last_at, vpn_key) => {
+const createClient = async (order_id, tg_id, left_time, vpn_key) => {
   try {
+    console.log(last_at);
+
     const { data, error } = await supabase
       .from("clients")
       .insert([
         {
           order_id,
           tg_id,
-          last_at,
-          subscription: true,
+          left_time,
           vpn_key,
+          subscription: true,
         },
       ])
       .select();
