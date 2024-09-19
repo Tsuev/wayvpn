@@ -57,7 +57,7 @@ const scenarios = {
   },
   subscription: async (bot, msg) => {
     const [clientData] = await getClient(msg.from.id);
-    if (clientData.subscription) return scenarios.keys(bot, msg);
+    if (clientData?.subscription) return scenarios.keys(bot, msg);
 
     bot.deleteMessage(msg.from.id, msg.message.message_id);
     bot.sendPhoto(
