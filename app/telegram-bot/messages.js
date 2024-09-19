@@ -1,7 +1,7 @@
 const messages = {
   profile: (id, subscriptionState) => {
-    return `🆔 ○ Пользователь: ${id}\n\n💳 Подписка: ${
-      subscriptionState ? "активна" : "неактивна"
+    return `🆔 <b>ID Пользователя</b>: ${id}\n\n💳 Подписка:\n\n${
+      subscriptionState ? "✅ <b>Активна</b>" : "⚠️ <b>Неактивна</b>"
     }`;
   },
   keys: (key, time) => {

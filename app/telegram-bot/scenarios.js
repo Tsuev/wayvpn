@@ -18,12 +18,16 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const scenarios = {
-  profile: (bot, msg) => {
-    bot.deleteMessage(msg.from.id, msg.message.message_id);
-    bot.sendMessage(
+  profile: async (bot, msg) => {
+    await bot.deleteMessage(msg.from.id, msg.message.message_id);
+    const [clientData] = await getClient(msg.from.id);
+    await bot.sendMessage(
       msg.from.id,
-      messages.profile(msg.from.id, true),
-      keyboards.back()
+      messages.profile(msg.from.id, clientData.subscription),
+      {
+        ...keyboards.back(),
+        parse_mode: "HTML",
+      }
     );
   },
   keys: async (bot, msg) => {
@@ -48,7 +52,10 @@ const scenarios = {
       });
     }
   },
-  subscription: (bot, msg) => {
+  subscription: async (bot, msg) => {
+    const [clientData] = await getClient(msg.from.id);
+    if (clientData.subscription) return scenarios.keys(bot, msg);
+
     bot.deleteMessage(msg.from.id, msg.message.message_id);
     bot.sendPhoto(
       msg.from.id,
