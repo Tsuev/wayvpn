@@ -11,7 +11,7 @@ import {
 
 import { createClient, getClient } from "../services/supabaseService.js";
 import { addVPNClient } from "../services/vpnService.js";
-import getSubscribeTime from "../helpers/getSubscribeTime.js";
+import { setSubscribeTime, getLeftTime } from "../helpers/getSubscribeTime.js";
 import createVPNkey from "../helpers/createVPNkey.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -37,7 +37,10 @@ const scenarios = {
     if (clientData.length) {
       await bot.sendMessage(
         msg.from.id,
-        messages.keys(`<pre>${clientData[0].vpn_key}</pre>`),
+        messages.keys(
+          `<pre>${clientData[0].vpn_key}</pre>`,
+          getLeftTime(clientData[0].left_time)
+        ),
         {
           ...keyboards.back(),
           parse_mode: "HTML",
@@ -100,7 +103,7 @@ const scenarios = {
 };
 
 async function payment(bot, msg, months) {
-  const time = getSubscribeTime(months);
+  const time = setSubscribeTime(months);
 
   try {
     const paymentLoadMessage = await bot.sendMessage(
