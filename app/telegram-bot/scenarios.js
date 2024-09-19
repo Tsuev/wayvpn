@@ -86,6 +86,7 @@ const scenarios = {
     );
   },
   start: (bot, msg) => {
+    if (msg.from.id !== +process.env.ADMIN_ID) return;
     bot.setMyCommands([{ command: "start", description: "Главное меню" }]);
     bot.sendPhoto(
       msg.from.id,
