@@ -32,9 +32,9 @@ const scenarios = {
   },
   keys: async (bot, msg) => {
     await bot.deleteMessage(msg.from.id, msg.message.message_id);
-    const clientData = await getClient(msg.from.id);
+    const [clientData] = await getClient(msg.from.id);
 
-    if (clientData.length) {
+    if (clientData) {
       await bot.sendMessage(
         msg.from.id,
         messages.keys(
@@ -47,25 +47,24 @@ const scenarios = {
           disable_web_page_preview: true,
         }
       );
-    } else {
-      await bot.sendMessage(msg.from.id, messages.keys(), {
-        ...keyboards.back(),
-        parse_mode: "HTML",
-        disable_web_page_preview: true,
-      });
+      retrun;
     }
+    await bot.sendMessage(msg.from.id, messages.keys(), {
+      ...keyboards.back(),
+      parse_mode: "HTML",
+      disable_web_page_preview: true,
+    });
   },
   subscription: async (bot, msg) => {
     const [clientData] = await getClient(msg.from.id);
-    if (clientData?.subscription) return scenarios.keys(bot, msg);
 
     bot.deleteMessage(msg.from.id, msg.message.message_id);
     bot.sendPhoto(
       msg.from.id,
       fs.createReadStream(path.join(__dirname, "../../assets/price.png")),
       {
-        ...keyboards.price(),
-        caption: messages.subscription(),
+        ...keyboards.price(clientData?.subscription),
+        caption: messages.subscription(clientData?.subscription),
         parse_mode: "HTML",
       }
     );
@@ -86,7 +85,6 @@ const scenarios = {
     );
   },
   start: (bot, msg) => {
-    if (msg.from.id !== +process.env.ADMIN_ID) return;
     bot.setMyCommands([{ command: "start", description: "Главное меню" }]);
     bot.sendPhoto(
       msg.from.id,
