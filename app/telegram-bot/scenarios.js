@@ -23,7 +23,7 @@ const scenarios = {
     const [clientData] = await getClient(msg.from.id);
     await bot.sendMessage(
       msg.from.id,
-      messages.profile(msg.from.id, clientData.subscription),
+      messages.profile(msg.from.id, clientData?.subscription),
       {
         ...keyboards.back(),
         parse_mode: "HTML",
@@ -38,8 +38,8 @@ const scenarios = {
       await bot.sendMessage(
         msg.from.id,
         messages.keys(
-          `<pre>${clientData[0].vpn_key}</pre>`,
-          getLeftTime(clientData[0].left_time)
+          `<pre>${clientData.vpn_key}</pre>`,
+          getLeftTime(clientData.left_time)
         ),
         {
           ...keyboards.back(),
@@ -47,7 +47,7 @@ const scenarios = {
           disable_web_page_preview: true,
         }
       );
-      retrun;
+      return;
     }
     await bot.sendMessage(msg.from.id, messages.keys(), {
       ...keyboards.back(),
