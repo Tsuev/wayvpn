@@ -10,7 +10,7 @@ import {
 } from "../services/yookassaServies.js";
 
 import { createClient, getClient } from "../services/supabaseService.js";
-import { addVPNClient } from "../services/vpnService.js";
+import { addVPNClient, getVPNclient } from "../services/vpnService.js";
 import { setSubscribeTime, getLeftTime } from "../helpers/getSubscribeTime.js";
 import createVPNkey from "../helpers/createVPNkey.js";
 
@@ -30,34 +30,31 @@ const scenarios = {
       }
     );
   },
-  keys: async (bot, msg) => {
+  keys: async (bot, msg, key, time) => {
     await bot.deleteMessage(msg.from.id, msg.message.message_id);
+
     const [clientData] = await getClient(msg.from.id);
 
-    if (clientData) {
-      await bot.sendMessage(
-        msg.from.id,
-        messages.keys(
-          `<pre>${clientData.vpn_key}</pre>`,
-          getLeftTime(clientData.left_time)
-        ),
-        {
-          ...keyboards.back(),
-          parse_mode: "HTML",
-          disable_web_page_preview: true,
-        }
-      );
-      return;
-    }
-    await bot.sendMessage(msg.from.id, messages.keys(), {
-      ...keyboards.back(),
-      parse_mode: "HTML",
-      disable_web_page_preview: true,
-    });
+    await bot.sendMessage(
+      msg.from.id,
+      messages.keys(
+        clientData?.vpn_key || key,
+        getLeftTime(clientData?.left_time || time)
+      ),
+      {
+        ...keyboards.back(),
+        parse_mode: "HTML",
+        disable_web_page_preview: true,
+      }
+    );
   },
   subscription: async (bot, msg) => {
     const [clientData] = await getClient(msg.from.id);
 
+    if (clientData?.subscription) {
+      scenarios.keys(bot, msg);
+      return;
+    }
     bot.deleteMessage(msg.from.id, msg.message.message_id);
     bot.sendPhoto(
       msg.from.id,
@@ -129,7 +126,8 @@ async function payment(bot, msg, months) {
             scenarios.keys(
               bot,
               msg,
-              createVPNkey(updatedPayData.id, msg.from.id)
+              createVPNkey(updatedPayData.id, msg.from.id),
+              time
             );
             clearInterval(intervalId);
             resolve(updatedPayData);
@@ -155,11 +153,13 @@ async function payment(bot, msg, months) {
       time,
       msg.from.id
     );
+
     await createClient(
       completedPayData.payment_method.id,
       msg.from.id,
       time,
-      createVPNkey(completedPayData.id, msg.from.id)
+      createVPNkey(completedPayData.id, msg.from.id),
+      msg.data
     );
   } catch (error) {
     bot.sendMessage(

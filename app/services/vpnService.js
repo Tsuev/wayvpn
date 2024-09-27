@@ -1,10 +1,17 @@
-import { addClient } from "../plugins/x-ui.js";
+import { addClient, getClients, getClient } from "../plugins/x-ui.js";
 
 const addVPNClient = async (id, username, time, tgId) => {
   const response = await addClient(id, username, time, tgId);
   return response;
 };
 
-const getVPNclient = async (id) => {};
+const getVPNclients = async () => {
+  await getClients();
+};
 
-export { addVPNClient };
+const getVPNclient = async (id) => {
+  const client = await getClient(id);
+  return client;
+};
+
+export { addVPNClient, getVPNclients, getVPNclient };

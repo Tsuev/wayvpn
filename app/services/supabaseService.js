@@ -1,14 +1,6 @@
 import supabase from "../plugins/supabase.js";
 
-const createClient = async (
-  order_id,
-  tg_id,
-  left_time,
-  vpn_key,
-  tarif,
-  subscription = true,
-  autopay = true
-) => {
+const createClient = async (order_id, tg_id, left_time, vpn_key, tarif) => {
   try {
     const { data, error } = await supabase
       .from("clients")
@@ -17,10 +9,8 @@ const createClient = async (
           tg_id,
           tarif,
           vpn_key,
-          autopay,
           order_id,
           left_time,
-          subscription,
         },
       ])
       .select();

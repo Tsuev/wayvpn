@@ -22,7 +22,6 @@ const yooKassa = {
       metadata: {
         order_id: uuidv4(),
       },
-      save_payment_method: true,
     };
 
     const headers = {

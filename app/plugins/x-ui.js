@@ -33,6 +33,43 @@ const login = async () => {
   }
 };
 
+const getClients = async () => {
+  try {
+    const cookies = await login();
+
+    const response = await fetch(`${URL}/wayvpn/panel/api/inbounds/get/1`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Cookie: cookies,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const resParse = await response.json();
+    const { clients } = JSON.parse(resParse.obj.settings);
+
+    return clients;
+  } catch (error) {
+    console.error("Error fetching client:", error);
+  }
+};
+
+const getClient = async (id) => {
+  try {
+    const clients = await getClients();
+    const client = clients.find((client) => client.id === id);
+
+    return client;
+  } catch (error) {
+    console.error("Error fetching client:", error);
+  }
+};
+
 const addClient = async (id, username, expiryTime, tgId) => {
   try {
     const cookies = await login();
@@ -77,6 +114,4 @@ const addClient = async (id, username, expiryTime, tgId) => {
   }
 };
 
-addClient("erg34g3bgre3be", "egerg0", 1729262471201, 335435);
-
-export { addClient };
+export { addClient, getClients, getClient };

@@ -31,15 +31,7 @@ const keyboard = {
     };
     const deleteAutopayKeyboard = {
       reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: "🛑 Отменить автоплатежи",
-              callback_data: "delete_autopay",
-            },
-          ],
-          [{ text: "Назад ● 🔙", callback_data: "back" }],
-        ],
+        inline_keyboard: [[{ text: "Назад ● 🔙", callback_data: "back" }]],
       },
     };
 
