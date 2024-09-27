@@ -114,4 +114,8 @@ const addClient = async (id, username, expiryTime, tgId) => {
   }
 };
 
+const updateClient = async (id, username, expiryTime, tgId) => {
+  // TODO: Реализовать обновление данных клиента после продления подписки
+};
+
 export { addClient, getClients, getClient };
