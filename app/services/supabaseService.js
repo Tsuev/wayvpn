@@ -40,7 +40,6 @@ const getClient = async (tg_id) => {
 
 const resetExpiredLeftTimeAndSubscription = async () => {
   const currentTime = Date.now();
-  console.log("foo");
 
   const { data, error } = await supabase
     .from("clients")

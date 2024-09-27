@@ -6,7 +6,8 @@ const addVPNClient = async (id, username, time, tgId) => {
 };
 
 const getVPNclients = async () => {
-  await getClients();
+  const clients = await getClients();
+  return clients;
 };
 
 const getVPNclient = async (id) => {
