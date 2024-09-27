@@ -15,4 +15,6 @@ const getVPNclient = async (id) => {
   return client;
 };
 
+const turnOffVPNClient = async (id) => {};
+
 export { addVPNClient, getVPNclients, getVPNclient };
