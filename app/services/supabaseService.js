@@ -38,26 +38,30 @@ const getClient = async (tg_id) => {
   }
 };
 
-const resetExpiredLeftTimeAndSubscription = async () => {
+const resetExpiredLeftTimeAndSubscription = async (usersNotification) => {
   const currentTime = Date.now();
 
   const { data, error } = await supabase
+    .from("clients")
+    .select()
+    .lt("left_time", currentTime);
+
+  if (data && data.length > 0) {
+    await usersNotification(data);
+  }
+
+  await supabase
     .from("clients")
     .update({
       left_time: 0,
       subscription: false,
     })
-    .lt("left_time", currentTime)
-    .select();
+    .lt("left_time", currentTime);
 
   if (error) {
     console.error("Ошибка при обновлении записей:", error);
     return;
   }
-
-  return data;
 };
-
-resetExpiredLeftTimeAndSubscription();
 
 export { createClient, getClient, resetExpiredLeftTimeAndSubscription };
