@@ -126,7 +126,7 @@ const updateClient = async (id, username, expiryTime, tgId) => {
         clients: [
           {
             id,
-            alterId: 0,
+            flow: "xtls-rprx-vision",
             email: username,
             limitIp: 2,
             totalGB: 0,
@@ -134,7 +134,7 @@ const updateClient = async (id, username, expiryTime, tgId) => {
             enable: true,
             tgId,
             subId: "",
-            flow: "xtls-rprx-vision",
+            reset: 0,
           },
         ],
       })
@@ -148,15 +148,27 @@ const updateClient = async (id, username, expiryTime, tgId) => {
           Accept: "application/json",
           Cookie: cookies,
         },
+        body: data,
       }
     );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const resJson = await response.json();
+
+    return resJson;
   } catch (error) {
     console.log(error);
   }
 };
+
+updateClient(
+  "2e8ca251-000f-5000-a000-1fad8c5df865",
+  "344486749",
+  1757417139312,
+  344486749
+);
 
 export { addClient, getClients, getClient, updateClient };

@@ -38,6 +38,21 @@ const getClient = async (tg_id) => {
   }
 };
 
+const updateClient = async (tg_id, left_time) => {
+  try {
+    const { data, error } = await supabase
+      .from("clients")
+      .update({ left_time, subscription: true })
+      .eq("tg_id", tg_id);
+
+    if (error) throw new Error(error);
+
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 const resetExpiredLeftTimeAndSubscription = async (usersNotification) => {
   const currentTime = Date.now();
 
@@ -64,4 +79,9 @@ const resetExpiredLeftTimeAndSubscription = async (usersNotification) => {
   }
 };
 
-export { createClient, getClient, resetExpiredLeftTimeAndSubscription };
+export {
+  createClient,
+  getClient,
+  resetExpiredLeftTimeAndSubscription,
+  updateClient,
+};

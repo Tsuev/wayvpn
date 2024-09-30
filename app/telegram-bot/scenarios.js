@@ -9,12 +9,12 @@ import {
   checkPayment,
 } from "../services/yookassaServies.js";
 
-import { createClient, getClient } from "../services/supabaseService.js";
 import {
-  addVPNClient,
-  getVPNclient,
-  updateVPNclient,
-} from "../services/vpnService.js";
+  createClient,
+  getClient,
+  updateClient,
+} from "../services/supabaseService.js";
+import { addVPNClient, updateVPNclient } from "../services/vpnService.js";
 import { setSubscribeTime, getLeftTime } from "../helpers/getSubscribeTime.js";
 import createVPNkey from "../helpers/createVPNkey.js";
 
@@ -116,6 +116,10 @@ async function payment(bot, msg, months) {
   try {
     const time = setSubscribeTime(months);
 
+    if (msg.message.message_id) {
+      await bot.deleteMessage(msg.from.id, msg.message.message_id);
+    }
+
     const paymentLoadMessage = await bot.sendMessage(
       msg.from.id,
       "⌛ Загрузка..."
@@ -157,8 +161,16 @@ async function payment(bot, msg, months) {
     const existClient = await getClient(msg.from.id);
     if (existClient.length) {
       const [client] = existClient;
-      await updateVPNclient(client.order_id, msg.from.id, time, msg.from.id);
+
+      await updateVPNclient(
+        client.order_id,
+        String(msg.from.id),
+        time,
+        msg.from.id
+      );
+      await updateClient(msg.from.id, time);
       await bot.sendMessage(msg.from.id, "🎉 Подписка обновлена!");
+      scenarios.start(bot, msg);
       return;
     }
     scenarios.keys(
