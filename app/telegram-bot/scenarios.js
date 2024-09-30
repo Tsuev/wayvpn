@@ -10,7 +10,11 @@ import {
 } from "../services/yookassaServies.js";
 
 import { createClient, getClient } from "../services/supabaseService.js";
-import { addVPNClient, getVPNclient } from "../services/vpnService.js";
+import {
+  addVPNClient,
+  getVPNclient,
+  updateVPNclient,
+} from "../services/vpnService.js";
 import { setSubscribeTime, getLeftTime } from "../helpers/getSubscribeTime.js";
 import createVPNkey from "../helpers/createVPNkey.js";
 
@@ -19,7 +23,9 @@ const __dirname = path.dirname(__filename);
 
 const scenarios = {
   profile: async (bot, msg) => {
-    await bot.deleteMessage(msg.from.id, msg.message.message_id);
+    if (msg.message.message_id) {
+      await bot.deleteMessage(msg.from.id, msg.message.message_id);
+    }
     const [clientData] = await getClient(msg.from.id);
     await bot.sendMessage(
       msg.from.id,
@@ -31,7 +37,9 @@ const scenarios = {
     );
   },
   keys: async (bot, msg, key, time) => {
-    await bot.deleteMessage(msg.from.id, msg.message.message_id);
+    if (msg.message.message_id) {
+      await bot.deleteMessage(msg.from.id, msg.message.message_id);
+    }
 
     const [clientData] = await getClient(msg.from.id);
 
@@ -55,7 +63,9 @@ const scenarios = {
       scenarios.keys(bot, msg);
       return;
     }
-    bot.deleteMessage(msg.from.id, msg.message.message_id);
+    if (msg.message.message_id) {
+      await bot.deleteMessage(msg.from.id, msg.message.message_id);
+    }
     bot.sendPhoto(
       msg.from.id,
       fs.createReadStream(path.join(__dirname, "../../assets/price.png")),
@@ -67,14 +77,18 @@ const scenarios = {
     );
   },
   help: (bot, msg) => {
-    bot.deleteMessage(msg.from.id, msg.message.message_id);
+    if (msg.message.message_id) {
+      bot.deleteMessage(msg.from.id, msg.message.message_id);
+    }
     bot.sendMessage(msg.from.id, messages.help(), {
       ...keyboards.back(),
       parse_mode: "HTML",
     });
   },
   back: (bot, msg) => {
-    bot.deleteMessage(msg.from.id, msg.message.message_id);
+    if (msg.message.message_id) {
+      bot.deleteMessage(msg.from.id, msg.message.message_id);
+    }
     bot.sendPhoto(
       msg.from.id,
       fs.createReadStream(path.join(__dirname, "../../assets/ad.jpg")),
@@ -99,9 +113,9 @@ const scenarios = {
 };
 
 async function payment(bot, msg, months) {
-  const time = setSubscribeTime(months);
-
   try {
+    const time = setSubscribeTime(months);
+
     const paymentLoadMessage = await bot.sendMessage(
       msg.from.id,
       "⌛ Загрузка..."
@@ -120,15 +134,9 @@ async function payment(bot, msg, months) {
           const updatedPayData = await checkPayment(payData.id);
 
           if (updatedPayData.status === "succeeded") {
-            bot.deleteMessage(msg.from.id, paymentLoadMessage.message_id);
+            await bot.deleteMessage(msg.from.id, paymentLoadMessage.message_id);
             await bot.deleteMessage(msg.from.id, paymentLinkMessage.message_id);
             await bot.sendMessage(msg.from.id, "✅ Оплата прошла успешно!");
-            scenarios.keys(
-              bot,
-              msg,
-              createVPNkey(updatedPayData.id, msg.from.id),
-              time
-            );
             clearInterval(intervalId);
             resolve(updatedPayData);
           }
@@ -146,6 +154,19 @@ async function payment(bot, msg, months) {
     };
 
     const completedPayData = await trackPayment(payData);
+    const existClient = await getClient(msg.from.id);
+    if (existClient.length) {
+      const [client] = existClient;
+      await updateVPNclient(client.order_id, msg.from.id, time, msg.from.id);
+      await bot.sendMessage(msg.from.id, "🎉 Подписка обновлена!");
+      return;
+    }
+    scenarios.keys(
+      bot,
+      msg,
+      createVPNkey(completedPayData.id, msg.from.id),
+      time
+    );
 
     await addVPNClient(
       completedPayData.id,
@@ -164,7 +185,10 @@ async function payment(bot, msg, months) {
   } catch (error) {
     bot.sendMessage(
       msg.from.id,
-      "Возникла какая-то ошибка\n\n❌ Оплата отменена"
+      "Возникла какая-то ошибка\n\n❌ Произошла ошибка при попытке оплаты\n\nПроверьте ключ, в случае проблемы напишите в тех.поддержку" +
+        "\n\n\n" +
+        error.message,
+      error
     );
     console.error("Ошибка:", error.message);
   }

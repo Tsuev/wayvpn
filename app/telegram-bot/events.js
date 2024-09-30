@@ -10,7 +10,7 @@ function events(bot) {
 
     bot.on("callback_query", async (msg) => scenarios[msg.data](bot, msg));
 
-    cron.schedule("0 0 * * *", async () => {
+    cron.schedule("*/5 * * * * *", async () => {
       await resetExpiredLeftTimeAndSubscription(async (clients) => {
         clients.forEach(async (client) => {
           if (client.subscription) {

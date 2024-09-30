@@ -115,7 +115,48 @@ const addClient = async (id, username, expiryTime, tgId) => {
 };
 
 const updateClient = async (id, username, expiryTime, tgId) => {
-  // TODO: Реализовать обновление данных клиента после продления подписки
+  try {
+    const cookies = await login();
+
+    const data = new FormData();
+    data.append("id", 1);
+    data.append(
+      "settings",
+      JSON.stringify({
+        clients: [
+          {
+            id,
+            alterId: 0,
+            email: username,
+            limitIp: 2,
+            totalGB: 0,
+            expiryTime,
+            enable: true,
+            tgId,
+            subId: "",
+            flow: "xtls-rprx-vision",
+          },
+        ],
+      })
+    );
+
+    const response = await fetch(
+      `${URL}/wayvpn/panel/inbound/updateClient/${id}`,
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          Cookie: cookies,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+  } catch (error) {
+    console.log(error);
+  }
 };
 
-export { addClient, getClients, getClient };
+export { addClient, getClients, getClient, updateClient };
