@@ -17,14 +17,10 @@ const keyboard = {
     const pricesKeyboard = {
       reply_markup: {
         inline_keyboard: [
-          [
-            { text: "200 руб. / 1 мес. 🥉", callback_data: 200 },
-            { text: "540 руб. / 3 мес. 🥈", callback_data: 540 },
-          ],
-          [
-            { text: "1100 руб. / 6 мес. 🥇", callback_data: 1100 },
-            { text: "2000 руб. / 12 мес. 💎", callback_data: 2000 },
-          ],
+          [{ text: "200 руб. / 1 мес. 🥉", callback_data: 200 }],
+          [{ text: "540 руб. / 3 мес. 🥈", callback_data: 540 }],
+          [{ text: "1100 руб. / 6 мес. 🥇", callback_data: 1100 }],
+          [{ text: "2000 руб. / 12 мес. 💎", callback_data: 2000 }],
           [{ text: "Назад ● 🔙", callback_data: "back" }],
         ],
       },

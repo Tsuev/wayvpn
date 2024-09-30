@@ -86,7 +86,7 @@ const scenarios = {
     });
   },
   back: (bot, msg) => {
-    if (msg.message.message_id) {
+    if (msg?.message?.message_id) {
       bot.deleteMessage(msg.from.id, msg.message.message_id);
     }
     bot.sendPhoto(
@@ -116,10 +116,6 @@ async function payment(bot, msg, months) {
   try {
     const time = setSubscribeTime(months);
 
-    if (msg.message.message_id) {
-      await bot.deleteMessage(msg.from.id, msg.message.message_id);
-    }
-
     const paymentLoadMessage = await bot.sendMessage(
       msg.from.id,
       "⌛ Загрузка..."
@@ -138,8 +134,20 @@ async function payment(bot, msg, months) {
           const updatedPayData = await checkPayment(payData.id);
 
           if (updatedPayData.status === "succeeded") {
-            await bot.deleteMessage(msg.from.id, paymentLoadMessage.message_id);
-            await bot.deleteMessage(msg.from.id, paymentLinkMessage.message_id);
+            if (
+              paymentLoadMessage.message_id &&
+              paymentLinkMessage.message_id
+            ) {
+              await bot.deleteMessage(
+                msg.from.id,
+                paymentLoadMessage.message_id
+              );
+              await bot.deleteMessage(
+                msg.from.id,
+                paymentLinkMessage.message_id
+              );
+            }
+
             await bot.sendMessage(msg.from.id, "✅ Оплата прошла успешно!");
             clearInterval(intervalId);
             resolve(updatedPayData);
@@ -147,8 +155,19 @@ async function payment(bot, msg, months) {
 
           if (updatedPayData.status === "canceled") {
             clearInterval(intervalId);
-            await bot.deleteMessage(msg.from.id, paymentLoadMessage.message_id);
-            await bot.deleteMessage(msg.from.id, paymentLinkMessage.message_id);
+            if (
+              paymentLoadMessage.message_id &&
+              paymentLinkMessage.message_id
+            ) {
+              await bot.deleteMessage(
+                msg.from.id,
+                paymentLoadMessage.message_id
+              );
+              await bot.deleteMessage(
+                msg.from.id,
+                paymentLinkMessage.message_id
+              );
+            }
             await bot.sendMessage(msg.from.id, "❌ Оплата отменена");
             scenarios.start(bot, msg);
             reject(new Error("Payment was canceled"));
