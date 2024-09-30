@@ -106,7 +106,7 @@ const scenarios = {
   error: (bot, msg) => {
     bot.sendMessage(process.env.ADMIN_ID, msg);
   },
-  200: (bot, msg) => payment(bot, msg, 1),
+  10: (bot, msg) => payment(bot, msg, 1),
   540: (bot, msg) => payment(bot, msg, 3),
   1100: (bot, msg) => payment(bot, msg, 6),
   2000: (bot, msg) => payment(bot, msg, 12),
