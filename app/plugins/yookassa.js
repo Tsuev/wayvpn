@@ -18,6 +18,22 @@ const yooKassa = {
         type: "redirect",
         return_url,
       },
+      receipt: {
+        customer: {
+          email: "tsuevjudoka@gmail.com",
+        },
+        items: [
+          {
+            description: "Оплата подписки",
+            quantity: 1,
+            vat_code: 1,
+            amount: {
+              value,
+              currency: "RUB",
+            },
+          },
+        ],
+      },
       description: "Оплата подписки",
       metadata: {
         order_id: uuidv4(),

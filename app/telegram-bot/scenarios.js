@@ -106,7 +106,7 @@ const scenarios = {
   error: (bot, msg) => {
     bot.sendMessage(process.env.ADMIN_ID, msg);
   },
-  10: (bot, msg) => payment(bot, msg, 1),
+  190: (bot, msg) => payment(bot, msg, 1),
   540: (bot, msg) => payment(bot, msg, 3),
   1100: (bot, msg) => payment(bot, msg, 6),
   2000: (bot, msg) => payment(bot, msg, 12),
@@ -122,6 +122,8 @@ async function payment(bot, msg, months) {
     );
 
     const payData = await createSubscription(+msg.data);
+    console.log("PAYDATA", payData);
+
     const paymentLinkMessage = await bot.sendMessage(
       msg.from.id,
       `<a href="${payData.confirmation.confirmation_url}"><b>Ссылка на оплату подписки</b></a>`,
