@@ -1,3 +1,4 @@
+import price from "../constants/price.js";
 import messages from "./messages.js";
 import keyboards from "./keyboards.js";
 import { fileURLToPath } from "url";
@@ -106,10 +107,10 @@ const scenarios = {
   error: (bot, msg) => {
     bot.sendMessage(process.env.ADMIN_ID, msg);
   },
-  190: (bot, msg) => payment(bot, msg, 1),
-  540: (bot, msg) => payment(bot, msg, 3),
-  1100: (bot, msg) => payment(bot, msg, 6),
-  2000: (bot, msg) => payment(bot, msg, 12),
+  [price.bronze]: (bot, msg) => payment(bot, msg, 1),
+  [price.silver]: (bot, msg) => payment(bot, msg, 3),
+  [price.gold]: (bot, msg) => payment(bot, msg, 6),
+  [price.diamond]: (bot, msg) => payment(bot, msg, 12),
 };
 
 async function payment(bot, msg, months) {

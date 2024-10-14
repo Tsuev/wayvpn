@@ -1,3 +1,5 @@
+import price from "../constants/price.js";
+
 const keyboard = {
   menu: () => ({
     reply_markup: {
@@ -17,10 +19,30 @@ const keyboard = {
     const pricesKeyboard = {
       reply_markup: {
         inline_keyboard: [
-          [{ text: "190 руб. / 1 мес. 🥉", callback_data: 190 }],
-          [{ text: "540 руб. / 3 мес. 🥈", callback_data: 540 }],
-          [{ text: "1100 руб. / 6 мес. 🥇", callback_data: 1100 }],
-          [{ text: "2000 руб. / 12 мес. 💎", callback_data: 2000 }],
+          [
+            {
+              text: `${price.bronze} руб. / 1 мес. 🥉`,
+              callback_data: price.bronze,
+            },
+          ],
+          [
+            {
+              text: `${price.silver} руб. / 3 мес. 🥈`,
+              callback_data: price.silver,
+            },
+          ],
+          [
+            {
+              text: `${price.gold} руб. / 6 мес. 🥇`,
+              callback_data: price.gold,
+            },
+          ],
+          [
+            {
+              text: `${price.diamond} руб. / 12 мес. 💎`,
+              callback_data: price.diamond,
+            },
+          ],
           [{ text: "Назад ● 🔙", callback_data: "back" }],
         ],
       },
