@@ -1,8 +1,8 @@
 import fetch from "node-fetch";
 import { v4 as uuidv4 } from "uuid";
 
-const secretKey = process.env.YOOKASSA_API_KEY;
-const shopId = process.env.YOOKASSA_SHOP_ID;
+const secretKey = process.env.MODE === "test" ? process.env.TEST_YOOKASSA_API_KEY : YOOKASSA_API_KEY;
+const shopId = process.env.MODE === "test" ? process.env.TEST_YOOKASSA_SHOP_ID : process.env.YOOKASSA_SHOP_ID;
 const url = process.env.YOOKASSA_URL;
 const return_url = process.env.BOT_URL;
 
