@@ -12,6 +12,12 @@ const keyboard = {
           { text: "Подписка ● 💳", callback_data: "subscription" },
           { text: "Помощь ● 🆘", callback_data: "help" },
         ],
+        [
+          {
+            text: "Бесплатный прокси ● 🌐",
+            url: "https://t.me/socks?server=alpha.wayvpn.ru&port=44493&user=wayvpn&pass=free",
+          },
+        ],
       ],
     },
   }),
