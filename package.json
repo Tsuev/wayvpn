@@ -6,7 +6,7 @@
   "scripts": {
     "prod": "node --env-file=.env app.js",
     "dev": "MODE=dev nodemon --exec \"node -r dotenv/config\" app.js",
-    "dev:test:": "MODE=test nodemon --exec \"node -r dotenv/config\" app.js"
+    "dev:test": "MODE=test nodemon --exec \"node -r dotenv/config\" app.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.3",
