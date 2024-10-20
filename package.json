@@ -6,11 +6,7 @@
   "scripts": {
     "prod": "node --env-file=.env app.js",
     "dev": "MODE=dev nodemon --exec \"node -r dotenv/config\" app.js",
-    "test:env": "if [ \"$MODE\" == \"dev\" ]; then \ 
-         sed -i 's/YOOKASSA_SHOP_ID=./TEST_YOOKASSA_SHOP_ID=/g' .env && \
-         sed -i 's/YOOKASSA_API_KEY=./TEST_YOOKASSA_API_KEY=/g' .env && \
-         sed -i 's/API_KEY_BOT=./TEST_KEY_BOT=/g' .env; \
-        fi"
+    "test:env": "MODE=test nodemon --exec \"node -r dotenv/config\" app.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.3",
